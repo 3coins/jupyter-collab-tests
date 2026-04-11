@@ -1,6 +1,6 @@
 {
   "name": "jupyter-collab-tests",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Galata + Toxiproxy tests for JupyterLab real-time collaboration under adverse network conditions",
   "private": true,
   "scripts": {

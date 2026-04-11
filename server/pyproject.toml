@@ -1,6 +1,6 @@
 [project]
 name = "jupyter-collab-tests-server"
-version = "0.1.0"
+version = "0.0.1"
 description = "JupyterLab server environment for jupyter-collab-tests"
 requires-python = ">=3.11"
 dependencies = [
