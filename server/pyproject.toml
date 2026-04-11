@@ -1,21 +1,23 @@
-[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.backends.legacy:build"
-
 [project]
 name = "jupyter-collab-chaos-server"
 version = "0.1.0"
 description = "JupyterLab server environment for jupyter-collab-chaos tests"
 requires-python = ">=3.11"
 dependencies = [
-    "jupyterlab>=4.2.0",
-    "jupyter-collaboration>=2.0.0",
-    "jupyter-server-documents>=0.1.0",
+    "jupyterlab>=4.5.6",
+    "jupyter-collaboration>=4.3.0",
+    "jupyter-server-documents>=0.2.0a1",
+    "jupyter-ai>=3.0.0",
+    "jupyter-ai-router>=0.0.4a1",
+    "jupyter-ai-persona-manager>=0.0.10a0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "jupyterlab>=4.2.0",
-    "jupyter-collaboration>=2.0.0",
-    "jupyter-server-documents>=0.1.0",
+    "jupyterlab>=4.5.0",
+    "jupyter-collaboration>=4.3.0",
+    "jupyter-server-documents>=0.2.0a1",
+    "jupyter-ai>=3.0.0",
+    "jupyter-ai-router>=0.0.4a1",
+    "jupyter-ai-persona-manager>=0.0.10a0"
 ]

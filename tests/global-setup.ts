@@ -68,8 +68,8 @@ export default async function globalSetup() {
   // --- 2. Start JupyterLab ---
   const serverDir = path.resolve(__dirname, '..', 'server');
   const jupyter = spawnProcess(
-    'jupyter',
-    ['lab', `--config=${path.join(serverDir, 'jupyter_server_config.py')}`],
+    'uv',
+    ['run', 'jupyter', 'lab', `--config=${path.join(serverDir, 'jupyter_server_config.py')}`],
     { cwd: serverDir }
   );
   await waitForPort(JUPYTER_PORT);

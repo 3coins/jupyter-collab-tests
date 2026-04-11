@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './specs',
+  testDir: './tests/specs',
   timeout: 60_000,
   expect: { timeout: 15_000 },
   // Run tests serially — each test manipulates shared Toxiproxy state
@@ -13,7 +13,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
   },
-  globalSetup: require.resolve('./global-setup'),
-  globalTeardown: require.resolve('./global-teardown'),
+  globalSetup: require.resolve('./tests/global-setup'),
+  globalTeardown: require.resolve('./tests/global-teardown'),
   reporter: [['list'], ['html', { open: 'never' }]],
 });
