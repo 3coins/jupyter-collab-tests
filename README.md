@@ -1,4 +1,4 @@
-# jupyter-collab-chaos
+# jupyter-collab-tests
 
 Tests for JupyterLab real-time collaboration under simulated adverse network conditions,
 using [Toxiproxy](https://github.com/Shopify/toxiproxy) for network fault injection and
@@ -29,8 +29,8 @@ drive multiple browser clients.
 
 ```bash
 # 1. Clone and enter the project
-git clone <your-repo-url> jupyter-collab-chaos
-cd jupyter-collab-chaos
+git clone https://github.com/3coins/jupyter-collab-tests.git
+cd jupyter-collab-tests
 
 # 2. Install JavaScript dependencies
 npm install
@@ -38,9 +38,13 @@ npx playwright install chromium
 
 # 3. Set up the Python environment
 cd server
-python -m venv .venv
-source .venv/bin/activate       # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+
+# With uv
+uv sync
+
+# With pip
+pip install .
+
 cd ..
 ```
 
@@ -52,7 +56,7 @@ cd ..
 npx playwright test
 
 # Run a specific spec file
-npx playwright test tests/specs/collab-latency.spec.ts
+npx playwright test tests/specs/collab-create.spec.ts
 
 # Run with visible browsers (useful for debugging)
 npx playwright test --headed
@@ -64,7 +68,7 @@ npx playwright show-report
 ## Project Structure
 
 ```
-jupyter-collab-chaos/
+jupyter-collab-tests/
 ├── CLAUDE.md                        # Claude Code steering file
 ├── README.md
 ├── package.json
