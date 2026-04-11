@@ -1,7 +1,7 @@
 [project]
-name = "jupyter-collab-chaos-server"
+name = "jupyter-collab-tests-server"
 version = "0.1.0"
-description = "JupyterLab server environment for jupyter-collab-chaos tests"
+description = "JupyterLab server environment for jupyter-collab-tests"
 requires-python = ">=3.11"
 dependencies = [
     "jupyterlab>=4.5.6",

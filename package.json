@@ -1,5 +1,5 @@
 {
-  "name": "jupyter-collab-chaos",
+  "name": "jupyter-collab-tests",
   "version": "0.1.0",
   "description": "Galata + Toxiproxy tests for JupyterLab real-time collaboration under adverse network conditions",
   "private": true,
