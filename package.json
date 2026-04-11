@@ -1,0 +1,20 @@
+{
+  "name": "jupyter-collab-chaos",
+  "version": "0.1.0",
+  "description": "Galata + Toxiproxy tests for JupyterLab real-time collaboration under adverse network conditions",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@jupyterlab/galata": "^4.0.0",
+    "@playwright/test": "^1.44.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
