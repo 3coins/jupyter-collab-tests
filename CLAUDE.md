@@ -1,48 +1,59 @@
-# jupyter-collab-chaos
+# jupyter-collab-tests
 
-Tests JupyterLab real-time collaboration under simulated adverse network conditions.
-Uses **Toxiproxy** (TCP proxy binary) to inject network faults and **Galata**
-(Playwright-based JupyterLab test framework) to drive multiple browser clients.
+Two test suites for JupyterLab, both using **Galata** (Playwright):
+
+1. **Collaboration tests** — Toxiproxy network fault injection with two browser clients
+2. **Chat session tests** — AI agent `@mention` interactions, yroom drain/recovery,
+   multi-agent conversations (Kiro, Claude, Codex)
+
 No Docker — all processes are spawned and torn down by the test runner itself.
 
 ## Prerequisites
 
-- `toxiproxy-server` on your PATH — download from https://github.com/Shopify/toxiproxy/releases
-- Python 3.11+ with the `server/` virtualenv set up (see README)
+- `toxiproxy-server` on your PATH (collab tests only) — download from https://github.com/Shopify/toxiproxy/releases
+- `jupyter-ai-devrepo` cloned as a sibling directory with `uv sync` done (chat tests only)
+- Python 3.11+
 - Node.js 18+
 
 ## Quick Commands
 
 ```bash
-# One-time Python setup
-cd server && python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-
 # One-time JS setup (from project root)
 npm install
 npx playwright install chromium
 
-# Run all tests (starts Toxiproxy + JupyterLab automatically)
+# ── Collab tests ──────────────────────────────────────────────────────────────
+# One-time Python setup
+cd server && uv sync && cd ..
+
+# Run all collab tests (starts Toxiproxy + JupyterLab automatically)
 npx playwright test
 
-# Run a specific spec
+# Run a specific collab spec
 npx playwright test tests/specs/collab-latency.spec.ts
 
+# ── Chat tests ────────────────────────────────────────────────────────────────
+# Run all chat tests (starts JupyterLab from devrepo automatically)
+npx playwright test --config=playwright.chat.config.ts
+
+# Run a specific chat spec
+npx playwright test --config=playwright.chat.config.ts tests/specs/chat-agent-mention.spec.ts
+
+# Override devrepo path
+DEVREPO_DIR=/path/to/jupyter-ai-devrepo npx playwright test --config=playwright.chat.config.ts
+
+# ── Common ────────────────────────────────────────────────────────────────────
 # Run with visible browser (useful for debugging)
 npx playwright test --headed
+npx playwright test --config=playwright.chat.config.ts --headed
 
 # Open the HTML report after a run
 npx playwright show-report
-
-# Inspect Toxiproxy state manually (while tests are running)
-curl http://localhost:8474/proxies
-curl http://localhost:8474/proxies/jupyter_client_a/toxics
-
-# Reset all toxics without restarting
-curl -X POST http://localhost:8474/reset
 ```
 
 ## Architecture
+
+### Collaboration tests
 
 ```
 Browser (Playwright page A)
@@ -56,41 +67,64 @@ Toxiproxy control API: :8474  (HTTP REST, used by tests to add/remove toxics)
 Each simulated collaborator connects through its own Toxiproxy port so network
 conditions can be applied independently per client, mid-test.
 
-`global-setup.ts` spawns both `toxiproxy-server` and `jupyter lab` as child processes,
-waits for their ports to be ready, then registers the two proxies.
-`global-teardown.ts` kills both processes by PID.
+### Chat tests
+
+```
+Browser (Playwright)  ──>  JupyterLab :8888  (launched from jupyter-ai-devrepo via uv run)
+                                │
+                                ├── jupyter-ai-persona-manager  (routes @mentions to personas)
+                                ├── jupyter-ai-acp-client       (Kiro, Claude, Codex personas)
+                                ├── jupyter-ai-chat-commands    (slash commands, file commands)
+                                └── jupyter-server-documents    (YRoom management + drain)
+```
+
+`chat-global-setup.ts` runs `uv run jupyter lab --config=<chat-config>` from the
+devrepo directory, activating its full Python environment. A single Playwright browser
+connects directly to port 8888.
 
 ## Project Structure
 
 ```
-jupyter-collab-chaos/
+jupyter-collab-tests/
 ├── CLAUDE.md                        # This file
 ├── README.md
 ├── package.json
 ├── tsconfig.json
-├── .gitignore
+├── playwright.config.ts             # Config for collaboration tests
+├── playwright.chat.config.ts        # Config for chat session tests
 │
-├── server/                          # Python side — JupyterLab server
+├── server/
 │   ├── pyproject.toml
-│   ├── jupyter_server_config.py
-│   ├── .venv/                       # gitignored
+│   ├── jupyter_server_config.py           # Server config for collab tests
+│   ├── jupyter_server_chat_test_config.py # Server config for chat tests
 │   └── notebooks/
-│       └── collab-test.ipynb        # Shared notebook used by tests
+│       └── collab-test.ipynb
 │
-└── tests/                           # TypeScript side — all test code
-    ├── playwright.config.ts
-    ├── global-setup.ts              # Spawns toxiproxy-server + jupyter lab
-    ├── global-teardown.ts           # Kills both processes
-    ├── toxiproxy-client.ts          # Thin HTTP wrapper for Toxiproxy REST API
-    ├── fixtures.ts                  # Extended Galata fixtures (pageA, pageB, toxi)
+└── tests/
+    ├── global-setup.ts              # Collab: spawns toxiproxy + jupyter lab
+    ├── global-teardown.ts           # Collab: kills both processes
+    ├── toxiproxy-client.ts          # Toxiproxy HTTP REST wrapper
+    ├── fixtures.ts                  # Collab: pageA, pageB, toxi fixtures
+    │
+    ├── chat-global-setup.ts         # Chat: spawns jupyter lab from devrepo
+    ├── chat-global-teardown.ts      # Chat: kills jupyter lab
+    ├── chat-fixtures.ts             # Chat: single chatPage fixture
+    ├── chat-helpers.ts              # Chat: page object helpers + selectors
+    │
     └── specs/
+        ├── collab-create.spec.ts
         ├── collab-latency.spec.ts
         ├── collab-disconnect.spec.ts
         ├── collab-bandwidth.spec.ts
-        └── collab-packet.spec.ts
+        ├── collab-packet.spec.ts
+        ├── chat-agent-mention.spec.ts
+        ├── chat-yroom-drain.spec.ts
+        └── chat-multi-agent.spec.ts
 ```
 
 ## Key Files & Responsibilities
+
+### Collab test files
 
 **`tests/toxiproxy-client.ts`** — wraps the Toxiproxy REST API. Use this in tests,
 never raw `fetch`. Methods: `createProxy`, `deleteProxy`, `addToxic`, `removeToxic`,
@@ -104,12 +138,24 @@ never raw `fetch`. Methods: `createProxy`, `deleteProxy`, `addToxic`, `removeTox
 
 **`tests/global-setup.ts`** — spawns `toxiproxy-server` and `jupyter lab`, waits for
 ports 8474 and 8888 to accept connections, then creates the two proxy entries.
-Stores child process PIDs in `process.env` for teardown.
-
-**`tests/global-teardown.ts`** — kills Toxiproxy and Jupyter by PID.
 
 **`server/jupyter_server_config.py`** — sets `token = ''`, `password = ''`,
 `open_browser = False`, and pins the root dir to `server/`.
+
+### Chat test files
+
+**`tests/chat-helpers.ts`** — page object helpers and CSS selectors for the chat UI.
+Functions: `createAndOpenChat`, `openChat`, `sendMessage`, `mentionAgent`,
+`waitForAgentResponse`, `getMessageCount`, `getMessageTexts`, `closeChat`.
+
+**`tests/chat-fixtures.ts`** — extends Galata's `test` with:
+- `chatPage`: a single `IJupyterLabPageFixture` pointed at `http://localhost:8888`
+
+**`tests/chat-global-setup.ts`** — spawns `uv run jupyter lab` from the devrepo
+directory with the chat test config. Waits for port 8888.
+
+**`server/jupyter_server_chat_test_config.py`** — Galata helpers, no auth,
+`YRoom.inactivity_timeout = 10`, `YRoomManager.auto_free_interval = 60`.
 
 ## Toxiproxy Toxic Types Reference
 
@@ -159,6 +205,7 @@ Disabling a proxy entirely (`setProxyEnabled(name, false)`) simulates complete o
 | `JUPYTER_URL` | `http://localhost:8888` | Direct JupyterLab URL |
 | `CLIENT_A_URL` | `http://localhost:18888` | Proxied URL for client A |
 | `CLIENT_B_URL` | `http://localhost:18889` | Proxied URL for client B |
+| `DEVREPO_DIR` | `../jupyter-ai-devrepo` | Path to the jupyter-ai devrepo |
 
 ## Debugging Tips
 
@@ -171,3 +218,7 @@ Disabling a proxy entirely (`setProxyEnabled(name, false)`) simulates complete o
   polls with a timeout — increase it if your machine is slow.
 - Toxiproxy blocks `Mozilla/` User-Agent on its control API port (:8474). This is
   intentional — all control calls must come from Node, not the browser.
+- Chat tests: if a persona doesn't appear in the `@` autocomplete, check that the
+  devrepo environment has the ACP client installed and API keys / ACP server configured.
+- Chat drain test waits ~75s (`inactivity_timeout=10` + `auto_free_interval=60` + margin).
+  Increase the margin in the spec if the test is flaky on slow machines.

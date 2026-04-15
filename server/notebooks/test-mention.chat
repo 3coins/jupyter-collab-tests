@@ -1,0 +1,41 @@
+{
+  "messages": [],
+  "users": {
+    "jupyter-ai-personas::jupyter_ai_acp_client::CodexAcpPersona": {
+      "bot": true,
+      "name": "Codex",
+      "initials": null,
+      "avatar_url": "/api/ai/avatars/jupyter-ai-personas%3A%3Ajupyter_ai_acp_client%3A%3ACodexAcpPersona",
+      "username": "jupyter-ai-personas::jupyter_ai_acp_client::CodexAcpPersona",
+      "display_name": "Codex",
+      "color": null
+    },
+    "jupyter-ai-personas::jupyter_ai_acp_client::ClaudeAcpPersona": {
+      "avatar_url": "/api/ai/avatars/jupyter-ai-personas%3A%3Ajupyter_ai_acp_client%3A%3AClaudeAcpPersona",
+      "color": null,
+      "bot": true,
+      "username": "jupyter-ai-personas::jupyter_ai_acp_client::ClaudeAcpPersona",
+      "initials": null,
+      "name": "Claude",
+      "display_name": "Claude"
+    },
+    "jupyter-ai-personas::jupyter_ai_acp_client::OpenCodeAcpPersona": {
+      "username": "jupyter-ai-personas::jupyter_ai_acp_client::OpenCodeAcpPersona",
+      "bot": true,
+      "display_name": "OpenCode",
+      "initials": null,
+      "name": "OpenCode",
+      "avatar_url": "/api/ai/avatars/jupyter-ai-personas%3A%3Ajupyter_ai_acp_client%3A%3AOpenCodeAcpPersona",
+      "color": null
+    }
+  },
+  "attachments": {},
+  "metadata": {
+    "id": "99e085d1-2cf0-4112-8842-3e81cbc55411",
+    "acp_session_ids": {
+      "jupyter-ai-personas::jupyter_ai_acp_client::ClaudeAcpPersona": "435eb4c1-1224-41f9-b4cd-a98cba185799",
+      "jupyter-ai-personas::jupyter_ai_acp_client::CodexAcpPersona": "019d8f3a-e7b8-7342-996c-6236c354f6d1",
+      "jupyter-ai-personas::jupyter_ai_acp_client::OpenCodeAcpPersona": "ses_270c514a9ffeLjlolQt2UxvP2H"
+    }
+  }
+}

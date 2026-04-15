@@ -1033,8 +1033,8 @@ wheels = [
 ]
 
 [[package]]
-name = "jupyter-collab-chaos-server"
-version = "0.1.0"
+name = "jupyter-collab-tests-server"
+version = "0.0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "jupyter-ai" },
