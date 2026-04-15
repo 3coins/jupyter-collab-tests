@@ -1,5 +1,4 @@
 import { test as galataTest, expect, galata, IJupyterLabPageFixture } from '@jupyterlab/galata';
-import { chromium } from '@playwright/test';
 
 const BASE_URL = process.env.JUPYTER_URL ?? 'http://localhost:8888';
 
@@ -8,9 +7,7 @@ export interface ChatFixtures {
 }
 
 export const test = galataTest.extend<ChatFixtures>({
-  chatPage: async ({}, use) => {
-    const browser = await chromium.launch({ headless: false });
-    const context = await browser.newContext({ baseURL: BASE_URL });
+  chatPage: async ({ context }, use) => {
     const rawPage = await context.newPage();
 
     const page = galata.addHelpersToPage(
@@ -23,7 +20,6 @@ export const test = galataTest.extend<ChatFixtures>({
 
     await page.goto('');
     await use(page);
-    await browser.close();
   },
 });
 

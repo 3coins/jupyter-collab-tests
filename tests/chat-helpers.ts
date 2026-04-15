@@ -60,8 +60,10 @@ export async function mentionAgent(
   messageText: string,
 ): Promise<void> {
   const input = chatPanel.locator(CHAT_INPUT);
-  // Wait for personas to register as users in the chat
-  await chatPanel.page().waitForTimeout(5_000);
+  // Wait for personas to register and for auth polling to complete.
+  // The Kiro persona polls `kiro-cli whoami` every 2s; 10s gives enough
+  // time for registration + at least one successful auth check cycle.
+  await chatPanel.page().waitForTimeout(10_000);
   await input.pressSequentially('@');
 
   // Wait for the autocomplete dropdown to show the agent
